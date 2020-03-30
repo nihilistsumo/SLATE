@@ -59,11 +59,11 @@ def main():
         X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
     X_test = X_test.cuda(device1)
 
-    #NN = Query_Weight_Network().to(device1)
-    NN = Query_Attn_LL_Network().to(device1)
+    NN = Query_Weight_Network().to(device1)
+    #NN = Query_Attn_LL_Network().to(device1)
 
     criterion = nn.MSELoss().cuda(device1)
-    opt = optim.SGD(NN.parameters(), lr=lrate)
+    opt = optim.SGD(NN.parameters(), lr=lrate, weight_decay=0.01)
     print()
     with open(log_out, 'w') as lo:
         for i in range(iter):
