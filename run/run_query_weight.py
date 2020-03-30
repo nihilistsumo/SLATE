@@ -1,4 +1,3 @@
-import src
 from src.models import Query_Weight_Network
 import sys
 import argparse
