@@ -74,11 +74,11 @@ def main():
             val_auc_score = roc_auc_score(y_val, y_val_pred)
             sys.stdout.write(
                 '\r' + 'Iteration: ' + str(i) + ', loss: ' + str(loss) + ', val AUC: ' + '{:.4f}'.format(val_auc_score))
+            loss.backward()
             if i % 10 == 0:
                 lo.write('Iteration: ' + str(i) + ', loss: ' + str(loss) + ', val AUC: ' + str(val_auc_score) + '\n')
                 for name, param in NN.named_parameters():
-                    lo.write(name + ': '+ param.grad)
-            loss.backward()
+                    lo.write(name + ': ' + param.grad)
             opt.step()
     # NN.saveWeights(NN)
     y_pred = NN.predict(X_test).detach().cpu().numpy()
