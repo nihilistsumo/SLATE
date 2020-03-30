@@ -17,7 +17,7 @@ class Query_Weight_Network(nn.Module):
         self.Xp1 = X[:, self.emb_size:2*self.emb_size]
         self.Xp2 = X[:, 2*self.emb_size:]
         self.zq1 = torch.relu(self.LL1(self.dropout(self.Xq)))
-        self.zq2 = torch.relu(self.LL2(self.dropout(self.Xq)))
+        self.zq2 = torch.relu(self.LL2(self.dropout(self.zq1)))
         self.zq2Xp1 = torch.mul(self.zq2, self.Xp1)
         self.zq2Xp2 = torch.mul(self.zq2, self.Xp2)
         o = self.cosine_sim(self.zq2Xp1, self.zq2Xp2)  # final activation function
