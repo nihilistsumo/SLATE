@@ -2,7 +2,7 @@ import numpy as np
 import random
 import json
 from sentence_transformers import SentenceTransformer
-from src.nets import SentbertParaEmbedding
+from data import SentbertParaEmbedding
 import torch
 import sys
 
