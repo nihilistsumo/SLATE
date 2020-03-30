@@ -1,3 +1,5 @@
+from .nets.models import Query_Weight_Network
+from .data import process_qry_attn_data as dat
 import sys
 import argparse
 import torch
