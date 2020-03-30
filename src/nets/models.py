@@ -6,7 +6,7 @@ class Query_Weight_Network(nn.Module):
         super(Query_Weight_Network, self).__init__()
         # parameters
         self.emb_size = 768
-        self.l1_out_size = 64
+        self.l1_out_size = 32
         self.cosine_sim = nn.CosineSimilarity()
         self.LL1 = nn.Linear(self.emb_size, self.l1_out_size).cuda()
         self.dropout = nn.Dropout(p=0.1)
