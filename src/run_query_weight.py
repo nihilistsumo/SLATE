@@ -76,6 +76,8 @@ def main():
                 '\r' + 'Iteration: ' + str(i) + ', loss: ' + str(loss) + ', val AUC: ' + '{:.4f}'.format(val_auc_score))
             if i % 10 == 0:
                 lo.write('Iteration: ' + str(i) + ', loss: ' + str(loss) + ', val AUC: ' + str(val_auc_score) + '\n')
+                for name, param in NN.named_parameters():
+                    lo.write(name + ': '+ param.grad)
             loss.backward()
             opt.step()
     # NN.saveWeights(NN)
