@@ -78,7 +78,7 @@ def main():
             if i % 10 == 0:
                 lo.write('Iteration: ' + str(i) + ', loss: ' + str(loss) + ', val AUC: ' + str(val_auc_score) + '\n')
                 for name, param in NN.named_parameters():
-                    lo.write(name + ': ' + param.grad)
+                    lo.write(name + ': ' + str(param.grad))
             opt.step()
     # NN.saveWeights(NN)
     y_pred = NN.predict(X_test).detach().cpu().numpy()
