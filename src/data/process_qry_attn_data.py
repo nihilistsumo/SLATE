@@ -66,8 +66,8 @@ def write_query_attn_dataset_parapair(parapair_data, outfile):
         for d in data:
             out.write(d+'\n')
 
-def get_data(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_data_file, emb_mode, batch_size=10000):
-    model = SentenceTransformer(emb_file_prefix)
+def get_data(emb_dir, emb_model, emb_file_prefix, emb_paraids_file, query_attn_data_file, emb_mode, batch_size=10000):
+    model = SentenceTransformer(emb_model)
     paraids = list(np.load(emb_paraids_file))
     X= []
     y= []
@@ -104,7 +104,7 @@ def get_data(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_data_file, e
             p1_list.append(l.split('\t')[2])
             p2_list.append(l.split('\t')[3].rstrip())
             targets.append(float(l.split('\t')[0]))
-    print('Using ' + emb_file_prefix + ' to embed query, should be same as the embedding file')
+    print('Using ' + emb_model + ' to embed query')
     qemb_list = model.encode(queries, show_progress_bar=True)
     print('Queries embedded, now formatting the data into tensors')
     c = 0

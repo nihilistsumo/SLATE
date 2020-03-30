@@ -12,6 +12,7 @@ def main():
         description='Train and evaluate query weighted network for paragraph similarity task')
     parser.add_argument('-pd', '--emb_paraids_file', help='Path to train embedding paraids file')
     parser.add_argument('-pt', '--test_emb_paraids_file', help='Path to test embedding paraids file')
+    parser.add_argument('-ep', '--embedding_model', help='Embedding model name or actual path')
     parser.add_argument('-ed', '--emb_dir', help='Path to para embedding directory for train split paras')
     parser.add_argument('-et', '--emb_dir_test', help='Path to para embedding directory for test split paras')
     parser.add_argument('-lr', '--learning_rate', help='Learning rate')
@@ -30,6 +31,7 @@ def main():
     emb_dir_test = args['emb_dir_test']
     lrate = float(args['learning_rate'])
     iter = int(args['num_iteration'])
+    emb_model = args['embedding_model']
     emb_prefix = args['emb_file_prefix']
     emb_pids_file = args['emb_paraids_file']
     test_emb_pids_file = args['test_emb_paraids_file']
@@ -46,15 +48,15 @@ def main():
         device2 = device1
     log_out = model_out + '.train.log'
 
-    X, y = dat.get_data(emb_dir, emb_prefix, emb_pids_file, train_filepath, emb_mode, emb_batch)
+    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath, emb_mode, emb_batch)
     X_val = X[:100, :].cuda(device1)
     y_val = y[:100]
     X_train = X[100:, :].cuda(device1)
     y_train = y[100:].cuda(device1)
     if emb_dir_test == '':
-        X_test, y_test = dat.get_data(emb_dir, emb_prefix, test_emb_pids_file, test_filepath, 's')
+        X_test, y_test = dat.get_data(emb_dir, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
     else:
-        X_test, y_test = dat.get_data(emb_dir_test, emb_prefix, test_emb_pids_file, test_filepath, 's')
+        X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
     X_test = X_test.cuda(device1)
 
     NN = Query_Weight_Network().to(device1)
