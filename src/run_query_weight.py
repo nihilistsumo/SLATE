@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import roc_auc_score
-from src.data import process_qry_attn_data as dat
 
 def main():
     parser = argparse.ArgumentParser(
