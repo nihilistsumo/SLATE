@@ -10,7 +10,7 @@ from sklearn.metrics import roc_auc_score
 def main():
     parser = argparse.ArgumentParser(
         description='Train and evaluate query weighted network for paragraph similarity task')
-    parser.add_argument('-pd', '--emb_paraids_file', help='Path to train embedding paraids file')
+    parser.add_argument('-pd', '--emb_paraids_file', help='Path to train embedding paraids file/ train embedding json dict')
     parser.add_argument('-pt', '--test_emb_paraids_file', help='Path to test embedding paraids file')
     parser.add_argument('-ep', '--embedding_model', help='Embedding model name or actual path')
     parser.add_argument('-ed', '--emb_dir', help='Path to para embedding directory for train split paras')
@@ -20,7 +20,7 @@ def main():
     parser.add_argument('-pre', '--emb_file_prefix',
                         help='Name of the model used to embed the paras/ embedding file prefix')
     parser.add_argument('-em', '--emb_mode',
-                        help='Embedding mode: s=single embedding file, m=multi emb files in shards')
+                        help='Embedding mode for train: s=single .npy embedding file, m=.json embedding dict')
     parser.add_argument('-eb', '--emb_batch_size',
                         help='Batch size of each embedding file shard')
     parser.add_argument('-td', '--train_data_file', help='Path to train data file')
