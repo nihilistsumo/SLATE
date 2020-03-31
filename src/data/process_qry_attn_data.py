@@ -105,8 +105,8 @@ def get_data(emb_dir, emb_model, emb_file_prefix, emb_paraids_file, query_attn_d
     c = 0
     for i in range(len(queries)):
         qemb = qemb_list[i]
-        p1emb = para_emb_dict[p1_list[i]]
-        p2emb = para_emb_dict[p2_list[i]]
+        p1emb = np.array(para_emb_dict[p1_list[i]])
+        p2emb = np.array(para_emb_dict[p2_list[i]])
 
         if p1emb is None or p2emb is None:
             continue
