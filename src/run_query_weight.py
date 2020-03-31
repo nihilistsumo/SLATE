@@ -1,4 +1,4 @@
-from nets.models import Query_Weight_Network, Query_Attn_LL_Network
+from nets.models import Query_Weight_Network, Query_Attn_LL_Network, Siamese_Network
 from data import process_qry_attn_data as dat
 import sys
 import argparse
@@ -59,8 +59,9 @@ def main():
         X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
     X_test = X_test.cuda(device1)
 
-    NN = Query_Weight_Network().to(device1)
+    #NN = Query_Weight_Network().to(device1)
     #NN = Query_Attn_LL_Network().to(device1)
+    NN = Siamese_Network().to(device1)
 
     criterion = nn.MSELoss().cuda(device1)
     opt = optim.SGD(NN.parameters(), lr=lrate, weight_decay=0.01)
