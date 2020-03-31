@@ -51,7 +51,7 @@ class Siamese_Network(nn.Module):
         self.Xp1 = X[:, self.emb_size:2*self.emb_size]
         self.Xp2 = X[:, 2*self.emb_size:]
         self.zp1 = torch.relu(self.LL1(self.dropout(self.Xp1)))
-        self.zp2 = torch.relu(self.LL2(self.dropout(self.Xp2)))
+        self.zp2 = torch.relu(self.LL1(self.dropout(self.Xp2)))
         self.zp = torch.cat((self.zp1, self.zp2), dim=1)
         o = self.LL2(self.zp)  # final activation function
         return o
