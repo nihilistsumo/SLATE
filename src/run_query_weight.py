@@ -19,8 +19,6 @@ def main():
     parser.add_argument('-it', '--num_iteration', help='No. of iteration')
     parser.add_argument('-pre', '--emb_file_prefix',
                         help='Name of the model used to embed the paras/ embedding file prefix')
-    parser.add_argument('-em', '--emb_mode',
-                        help='Embedding mode for train: s=single .npy embedding file, m=.json embedding dict')
     parser.add_argument('-eb', '--emb_batch_size',
                         help='Batch size of each embedding file shard')
     parser.add_argument('-td', '--train_data_file', help='Path to train data file')
@@ -36,7 +34,6 @@ def main():
     emb_pids_file = args['emb_paraids_file']
     test_emb_pids_file = args['test_emb_paraids_file']
     emb_batch = int(args['emb_batch_size'])
-    emb_mode = args['emb_mode']
     train_filepath = args['train_data_file']
     test_filepath = args['test_data_file']
     model_out = args['model_outfile']
@@ -48,15 +45,15 @@ def main():
         device2 = device1
     log_out = model_out + '.train.log'
 
-    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath, emb_mode, emb_batch)
+    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath, emb_batch)
     X_val = X[:100, :].cuda(device1)
     y_val = y[:100]
     X_train = X[100:, :].cuda(device1)
     y_train = y[100:].cuda(device1)
     if emb_dir_test == '':
-        X_test, y_test = dat.get_data(emb_dir, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
+        X_test, y_test = dat.get_data(emb_dir, emb_model, emb_prefix, test_emb_pids_file, test_filepath)
     else:
-        X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath, 's')
+        X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath)
     X_test = X_test.cuda(device1)
 
     #NN = Query_Weight_Network().to(device1)

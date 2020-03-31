@@ -66,23 +66,17 @@ def write_query_attn_dataset_parapair(parapair_data, outfile):
         for d in data:
             out.write(d+'\n')
 
-def get_data(emb_dir, emb_model, emb_file_prefix, emb_paraids_file, query_attn_data_file, emb_mode, batch_size=10000):
+def get_data(emb_dir, emb_model, emb_file_prefix, emb_paraids_file, query_attn_data_file, batch_size=10000):
     model = SentenceTransformer(emb_model)
 
     X= []
     y= []
-    if emb_mode == 's':
-        paraids = list(np.load(emb_paraids_file))
-        para_emb = np.load(emb_dir + '/' + emb_file_prefix + '-part1.npy')
-        para_emb_dict = dict()
-        for i in range(len(paraids)):
-            para_emb_dict[paraids[i]] = para_emb[i]
-    elif emb_mode == 'm':
-        with open(emb_paraids_file, 'r') as ed:
-            para_emb_dict = json.load(ed)
-    else:
-        print('Embedding mode not supported')
-        return 1
+
+    paraids = list(np.load(emb_paraids_file))
+    para_emb = np.load(emb_dir + '/' + emb_file_prefix + '-part1.npy')
+    para_emb_dict = dict()
+    for i in range(len(paraids)):
+        para_emb_dict[paraids[i]] = para_emb[i]
 
     count = 0
     for _ in open(query_attn_data_file).readlines(): count += 1
