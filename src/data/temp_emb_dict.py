@@ -1,4 +1,4 @@
-from data.sentbert_embed import SentbertParaEmbedding
+from .sentbert_embed import SentbertParaEmbedding
 import json
 import argparse
 
