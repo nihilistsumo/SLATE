@@ -12,23 +12,20 @@ def main():
         description='Train and evaluate query weighted network for paragraph similarity task')
     parser.add_argument('-pd', '--emb_paraids_file', help='Path to train embedding paraids file/ train embedding json dict')
     parser.add_argument('-pt', '--test_emb_paraids_file', help='Path to test embedding paraids file')
+    parser.add_argument('-ed', '--emb_vec_file', help='Path to para embedding vec file for train split paras')
+    parser.add_argument('-et', '--emb_vec_test_file', help='Path to para embedding vec file for test split paras')
     parser.add_argument('-ep', '--embedding_model', help='Embedding model name or actual path')
-    parser.add_argument('-ed', '--emb_dir', help='Path to para embedding directory for train split paras')
-    parser.add_argument('-et', '--emb_dir_test', help='Path to para embedding directory for test split paras')
     parser.add_argument('-lr', '--learning_rate', help='Learning rate')
     parser.add_argument('-it', '--num_iteration', help='No. of iteration')
-    parser.add_argument('-pre', '--emb_file_prefix',
-                        help='Name of the model used to embed the paras/ embedding file prefix')
     parser.add_argument('-td', '--train_data_file', help='Path to train data file')
     parser.add_argument('-tt', '--test_data_file', help='Path to test data file')
     parser.add_argument('-o', '--model_outfile', help='Path to save the trained model')
     args = vars(parser.parse_args())
-    emb_dir = args['emb_dir']
-    emb_dir_test = args['emb_dir_test']
+    emb_vec = args['emb_vec_file']
+    emb_vec_test = args['emb_vec_test_file']
     lrate = float(args['learning_rate'])
     iter = int(args['num_iteration'])
     emb_model = args['embedding_model']
-    emb_prefix = args['emb_file_prefix']
     emb_pids_file = args['emb_paraids_file']
     test_emb_pids_file = args['test_emb_paraids_file']
     train_filepath = args['train_data_file']
@@ -42,15 +39,12 @@ def main():
         device2 = device1
     log_out = model_out + '.train.log'
 
-    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath)
+    X, y = dat.get_data(emb_vec, emb_model, emb_pids_file, train_filepath)
     X_val = X[:100, :].cuda(device1)
     y_val = y[:100]
     X_train = X[100:, :].cuda(device1)
     y_train = y[100:].cuda(device1)
-    if emb_dir_test == '':
-        X_test, y_test = dat.get_data(emb_dir, emb_model, emb_prefix, test_emb_pids_file, test_filepath)
-    else:
-        X_test, y_test = dat.get_data(emb_dir_test, emb_model, emb_prefix, test_emb_pids_file, test_filepath)
+    X_test, y_test = dat.get_data(emb_vec_test, emb_model, test_emb_pids_file, test_filepath)
     X_test = X_test.cuda(device1)
 
     #NN = Query_Weight_Network().to(device1)
