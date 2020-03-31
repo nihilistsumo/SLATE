@@ -10,8 +10,13 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_d
         for l in qd:
             p_list.add(l.split('\t')[2])
             p_list.add(l.split('\t')[3].rstrip())
+    print('Have to find embeddings of '+str(len(p_list)+' paras'))
+    c = 0
     for p in p_list:
         pemb_dict[p] = emb.get_single_embedding(p)
+        c += 1
+        if c%1000 == 0:
+            print(str(c)+' paras completed')
     with open(outfile, 'w') as out:
         json.dump(pemb_dict, out)
 
@@ -28,7 +33,7 @@ def main():
     emb_paraids_file = args['emb_paras']
     prefix = args['emb_prefix']
     qa_file = args['qry_attn_file']
-    batch = int(args['--batch'])
+    batch = int(args['batch'])
     outfile = args['outfile']
     create_temp_emb_dir(emb_dir, prefix, emb_paraids_file, qa_file, outfile, batch)
 
