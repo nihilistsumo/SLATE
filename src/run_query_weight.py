@@ -10,6 +10,7 @@ from sklearn.metrics import roc_auc_score
 def main():
     parser = argparse.ArgumentParser(
         description='Train and evaluate query weighted network for paragraph similarity task')
+    parser.add_argument('-nn', '--neural_model', help='1: Query weight, 2: Query attn LL, 3: Siamese')
     parser.add_argument('-pd', '--emb_paraids_file', help='Path to train embedding paraids file/ train embedding json dict')
     parser.add_argument('-pt', '--test_emb_paraids_file', help='Path to test embedding paraids file')
     parser.add_argument('-ed', '--emb_vec_file', help='Path to para embedding vec file for train split paras')
@@ -21,6 +22,7 @@ def main():
     parser.add_argument('-tt', '--test_data_file', help='Path to test data file')
     parser.add_argument('-o', '--model_outfile', help='Path to save the trained model')
     args = vars(parser.parse_args())
+    nn_option = int(args['neural_model'])
     emb_vec = args['emb_vec_file']
     emb_vec_test = args['emb_vec_test_file']
     lrate = float(args['learning_rate'])
@@ -47,9 +49,14 @@ def main():
     X_test, y_test = dat.get_data(emb_vec_test, emb_model, test_emb_pids_file, test_filepath)
     X_test = X_test.cuda(device1)
 
-    #NN = Query_Weight_Network().to(device1)
-    #NN = Query_Attn_LL_Network().to(device1)
-    NN = Siamese_Network().to(device1)
+    if(nn_option == 1):
+        NN = Query_Weight_Network().to(device1)
+    elif(nn_option == 2):
+        NN = Query_Attn_LL_Network().to(device1)
+    elif(nn_option == 3):
+        NN = Siamese_Network().to(device1)
+    else:
+        print('Wrong model option')
 
     criterion = nn.MSELoss().cuda(device1)
     opt = optim.SGD(NN.parameters(), lr=lrate, weight_decay=0.01)
