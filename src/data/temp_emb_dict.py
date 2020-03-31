@@ -10,7 +10,7 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_d
         for l in qd:
             p_list.add(l.split('\t')[2])
             p_list.add(l.split('\t')[3].rstrip())
-    print('Have to find embeddings of '+str(len(p_list)+' paras'))
+    print('Have to find embeddings of '+str(len(p_list))+' paras')
     c = 0
     for p in p_list:
         pemb_dict[p] = emb.get_single_embedding(p)
