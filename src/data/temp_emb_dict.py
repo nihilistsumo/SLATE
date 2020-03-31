@@ -29,12 +29,11 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_d
     for pt in part_para_dict.keys():
         emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
         for para in part_para_dict[pt]:
-            pemb_dict[para] = list(emb_vecs[all_id_part_dict[para][1]])
+            pemb_dict[para] = emb_vecs[all_id_part_dict[para][1]]
         i += 1
         print(i)
 
-    with open(outfile, 'w') as out:
-        json.dump(pemb_dict, out)
+    np.save(outfile, pemb_dict)
 
 def main():
     parser = argparse.ArgumentParser(description='Create temp para emb dict')
