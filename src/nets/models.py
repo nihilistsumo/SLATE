@@ -44,7 +44,8 @@ class Siamese_Network(nn.Module):
         self.emb_size = 768
         self.l1_out_size = 64
         self.LL1 = nn.Linear(self.emb_size, self.l1_out_size).cuda()
-        self.LL2 = nn.Linear(2*self.l1_out_size, 1).cuda()
+        self.LL2 = nn.Linear(self.l1_out_size, self.l1_out_size).cuda()
+        self.LL3 = nn.Linear(2*self.l1_out_size, 1).cuda()
         self.dropout = nn.Dropout(p=0.1)
 
     def forward(self, X):
@@ -52,12 +53,14 @@ class Siamese_Network(nn.Module):
         self.Xp1 = X[:, self.emb_size:2*self.emb_size]
         self.Xp2 = X[:, 2*self.emb_size:]
         self.zp1 = torch.relu(self.LL1(self.dropout(self.Xp1)))
+        self.zpp1 = torch.relu(self.LL2(self.dropout(self.zp1)))
         self.zp2 = torch.relu(self.LL1(self.dropout(self.Xp2)))
-        self.zp = torch.cat((self.zp1, self.zp2), dim=1)
-        o = self.LL2(self.zp)  # final activation function
+        self.zpp2 = torch.relu(self.LL2(self.dropout(self.zp2)))
+        self.zp = torch.cat((self.zpp1, self.zpp2), dim=1)
+        o = self.LL3(self.zp)  # final activation function
         o = o.reshape(-1)
         return o
-    
+
     def num_flat_features(self, X):
         size = X.size()[1:]  # all dimensions except the batch dimension
         num_features = 1
