@@ -19,8 +19,6 @@ def main():
     parser.add_argument('-it', '--num_iteration', help='No. of iteration')
     parser.add_argument('-pre', '--emb_file_prefix',
                         help='Name of the model used to embed the paras/ embedding file prefix')
-    parser.add_argument('-eb', '--emb_batch_size',
-                        help='Batch size of each embedding file shard')
     parser.add_argument('-td', '--train_data_file', help='Path to train data file')
     parser.add_argument('-tt', '--test_data_file', help='Path to test data file')
     parser.add_argument('-o', '--model_outfile', help='Path to save the trained model')
@@ -33,7 +31,6 @@ def main():
     emb_prefix = args['emb_file_prefix']
     emb_pids_file = args['emb_paraids_file']
     test_emb_pids_file = args['test_emb_paraids_file']
-    emb_batch = int(args['emb_batch_size'])
     train_filepath = args['train_data_file']
     test_filepath = args['test_data_file']
     model_out = args['model_outfile']
@@ -45,7 +42,7 @@ def main():
         device2 = device1
     log_out = model_out + '.train.log'
 
-    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath, emb_batch)
+    X, y = dat.get_data(emb_dir, emb_model, emb_prefix, emb_pids_file, train_filepath)
     X_val = X[:100, :].cuda(device1)
     y_val = y[:100]
     X_train = X[100:, :].cuda(device1)
