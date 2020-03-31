@@ -1,9 +1,15 @@
 from sentbert_embed import SentbertParaEmbedding
+import numpy as np
 import json
 import argparse
 
 def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_data_file, outfile, batch_size=10000):
-    emb = SentbertParaEmbedding(emb_paraids_file, emb_dir, emb_file_prefix, batch_size)
+    all_ids = np.load(emb_paraids_file)
+    all_id_part_dict = {}
+    for i in range(all_ids.size):
+        all_id_part_dict[all_ids[i]] = ((i // batch_size) + 1, i % batch_size)
+    part_para_dict = {}
+
     p_list = set()
     pemb_dict = {}
     with open(query_attn_data_file, 'r') as qd:
@@ -11,12 +17,19 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, query_attn_d
             p_list.add(l.split('\t')[2])
             p_list.add(l.split('\t')[3].rstrip())
     print('Have to find embeddings of '+str(len(p_list))+' paras')
-    c = 0
     for p in p_list:
-        pemb_dict[p] = emb.get_single_embedding(p)
-        c += 1
-        if c%1000 == 0:
-            print(str(c)+' paras completed')
+        part = all_id_part_dict[p][0]
+        if part in part_para_dict.keys():
+            part_para_dict[part].append(p)
+        else:
+            part_para_dict[part] = [p]
+    print('part para dict created')
+    for pt in part_para_dict.keys():
+        emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
+        for para in part_para_dict[pt]:
+            pemb_dict[para] = emb_vecs[all_id_part_dict[para][1]]
+        print('.')
+
     with open(outfile, 'w') as out:
         json.dump(pemb_dict, out)
 
