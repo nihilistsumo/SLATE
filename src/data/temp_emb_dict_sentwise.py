@@ -31,21 +31,32 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_dat
     print(str(len(part_para_dict))+' individual emb files to be used')
     i = 0
     j = 0
+    p = 0
+    part = 1
     paras = []
     embs = []
     for pt in part_para_dict.keys():
         emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
         for para in part_para_dict[pt]:
             embvec = emb_vecs[all_id_part_dict[para][1]:all_id_part_dict[para][1]+all_id_part_dict[para][2]]
-            paras.append(para+'\t1\t'+str(i)+'\t'+str(all_id_part_dict[para][2]))
+            paras.append(para+'\t'+str(part)+'\t'+str(i)+'\t'+str(all_id_part_dict[para][2]))
             i += all_id_part_dict[para][2]
             for e in embvec:
                 embs.append(e)
+            p += 1
+            if p > 9999:
+                np.save(outdir + '/' + outfile + '-part'+str(part)+'.npy', np.array(embs))
+                np.save(outdir + '/paraids_' + outfile + '-part'+str(part)+'.npy', np.array(paras))
+                part += 1
+                i = 0
+                p = 0
+                paras = []
+                embs = []
         j += 1
         print(j)
 
-    np.save(outdir+'/'+outfile+'.npy', np.array(embs))
-    np.save(outdir+'/paraids_'+outfile+'.npy', np.array(paras))
+    np.save(outdir + '/' + outfile + '-part' + str(part) + '.npy', np.array(embs))
+    np.save(outdir + '/paraids_' + outfile + '-part' + str(part) + '.npy', np.array(paras))
 
 def main():
     parser = argparse.ArgumentParser(description='Create temp para emb dict')
