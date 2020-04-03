@@ -7,9 +7,9 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout
-from src.data.siamese_sent_data import make_psg_pair_embeddings
-from src.data.siamese_sent_data import split_and_zero_padding
-from src.data.siamese_sent_data import ManDist
+from ..data.siamese_sent_data import make_psg_pair_embeddings
+from ..data.siamese_sent_data import split_and_zero_padding
+from ..data.siamese_sent_data import ManDist
 
 # File paths
 TRAIN_TSV = '/home/sumanta/Documents/SiameseLSTM_data/by1train-discrim-bal.tsv'
