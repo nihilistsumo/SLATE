@@ -64,7 +64,7 @@ def main():
     parser.add_argument('-ep', '--emb_paras', help='Path to emb paraids file')
     parser.add_argument('-pre', '--emb_prefix', help='Embedding file prefix')
     parser.add_argument('-bt', '--bert_seq_file', help='Path to input file in bert seq format')
-    parser.add_argument('-b', '--batch', help='Batch size for each embedding shards')
+    parser.add_argument('-b', '--batch', help='Batch size for each input embedding shards')
     parser.add_argument('-od', '--outdir', help='Path to output dir')
     parser.add_argument('-of', '--outfile', help='output temp emb file name without .npy')
     args = vars(parser.parse_args())
