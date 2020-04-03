@@ -37,7 +37,7 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_dat
         emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
         for para in part_para_dict[pt]:
             embvec = emb_vecs[all_id_part_dict[para][1]:all_id_part_dict[para][1]+all_id_part_dict[para][2]]
-            paras.append(para+'\t1\t'+i+'\t'+all_id_part_dict[para][2])
+            paras.append(para+'\t1\t'+i+'\t'+str(all_id_part_dict[para][2]))
             i += all_id_part_dict[para][2]
             embs += embvec
         j += 1
