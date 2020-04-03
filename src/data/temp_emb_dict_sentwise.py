@@ -7,7 +7,8 @@ def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_dat
     all_ids = np.load(emb_paraids_file)
     all_id_part_dict = {}
     for i in range(all_ids.size):
-        all_id_part_dict[all_ids[i].split('\t')[0]] = (all_ids[i].split('\t')[1], all_ids[i].split('\t')[2], all_ids[i].split('\t')[3])
+        all_id_part_dict[all_ids[i].split('\t')[0]] = (int(all_ids[i].split('\t')[1]), int(all_ids[i].split('\t')[2]),
+                                                       int(all_ids[i].split('\t')[3]))
     part_para_dict = {}
 
     p_list = set()
