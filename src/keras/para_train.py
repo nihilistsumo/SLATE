@@ -340,6 +340,7 @@ def main():
     parser.add_argument('-pre', '--emb_prefix', help='Embedding file prefix', default=EMB_FILE_PREFIX)
     parser.add_argument('-bn', '--batch_size', help='Batch size of each embedding file shard', default=EMB_BATCH)
     parser.add_argument('-ep', '--num_epochs', help='Number of epochs to train', default=50)
+    parser.add_argument('-os', '--out_score', help='Path to save the parapair score file for test', default='./data/test_parapair.json')
     parser.add_argument('-om', '--out_model', help='Path to save the model', default='./data/SiameseLSTM.h5')
     parser.add_argument('-op', '--out_plot', help='Path to save the history plot', default='./data/history-graph.png')
     args = vars(parser.parse_args())
@@ -352,9 +353,10 @@ def main():
     prefix = args['emb_prefix']
     batch = int(args['batch_size'])
     epochs = int(args['num_epochs'])
+    outscore = args['out_score']
     outmodel = args['out_model']
     outplot = args['out_plot']
-    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
+    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, epochs, outmodel, outplot, outscore)
 
 if __name__ == '__main__':
     main()
