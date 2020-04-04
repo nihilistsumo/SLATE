@@ -122,6 +122,9 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
     data_mat = []
     embeddings = []
     # emb_start_index = 0
+    randomize = False
+    if emb_start_index != 0:
+        randomize = True
     print('Going to embed '+str(len(dat))+' parapair samples')
     c = 0
     for t in dat:
@@ -131,8 +134,12 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         p1vec = sent_embed.get_single_sent_embedding(p1)
         p1emb = list(range(emb_start_index, emb_start_index + len(p1vec)))
         np.random.shuffle(p1vec)
-        for v in p1vec:
-            embeddings.append(v)
+        if randomize:
+            for v in p1vec:
+                embeddings.append(np.random.randn(768))
+        else:
+            for v in p1vec:
+                embeddings.append(v)
         emb_start_index += len(p1vec)
 
         p2 = t[2].strip()
@@ -140,8 +147,12 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         p2vec = sent_embed.get_single_sent_embedding(p2)
         p2emb = list(range(emb_start_index, emb_start_index + len(p2vec)))
         np.random.shuffle(p2vec)
-        for v in p2vec:
-            embeddings.append(v)
+        if randomize:
+            for v in p2vec:
+                embeddings.append(np.random.randn(768))
+        else:
+            for v in p2vec:
+                embeddings.append(v)
         emb_start_index += len(p2vec)
         data_mat.append([t[0], p1emb, p2emb])
         c += 1
