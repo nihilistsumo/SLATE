@@ -312,7 +312,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     else:
         print(str(malstm_trained.history['val_acc'][-1])[:6] +
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
-    malstm_trained.evaluate(X_test, Y_test)
+    model.evaluate(X_test, Y_test)
     print("Done.")
 
 def main():
