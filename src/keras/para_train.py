@@ -241,7 +241,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # Model variables
     gpus = 2
     batch_size = 1024 * gpus
-    n_epoch = 50
+    n_epoch = 5
     n_hidden = 50
 
     # Define the shared model
@@ -312,7 +312,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     else:
         print(str(malstm_trained.history['val_acc'][-1])[:6] +
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
-    model.evaluate(X_test, Y_test)
+    model.evaluate([X_test['left'], X_test['right']], Y_test)
     print("Done.")
 
 def main():
