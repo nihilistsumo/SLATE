@@ -282,8 +282,12 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
 
     # Plot accuracy
     plt.subplot(211)
-    plt.plot(malstm_trained.history['accuracy'])
-    plt.plot(malstm_trained.history['val_accuracy'])
+    if 'accuracy' in malstm_trained.history.keys():
+        plt.plot(malstm_trained.history['accuracy'])
+        plt.plot(malstm_trained.history['val_accuracy'])
+    else:
+        plt.plot(malstm_trained.history['acc'])
+        plt.plot(malstm_trained.history['val_acc'])
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
@@ -302,8 +306,12 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # plt.savefig('./data/history-graph.png')
     plt.savefig(plot_path)
 
-    print(str(malstm_trained.history['val_accuracy'][-1])[:6] +
+    if 'accuracy' in malstm_trained.history.keys():
+        print(str(malstm_trained.history['val_accuracy'][-1])[:6] +
           "(max: " + str(max(malstm_trained.history['val_accuracy']))[:6] + ")")
+    else:
+        print(str(malstm_trained.history['val_acc'][-1])[:6] +
+              "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
     malstm_trained.evaluate(X_test, Y_test)
     print("Done.")
 
