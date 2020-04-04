@@ -16,6 +16,7 @@ from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
 import numpy as np
 import itertools
+from sklearn.metrics import roc_auc_score
 
 # File paths
 TRAIN_TSV = '/home/sumanta/Documents/SiameseLSTM_data/by1train-discrim-bal.tsv'
@@ -208,7 +209,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     use_w2v = True
 
     train_df, train_embeddings = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
-    #test_df, test_embeddings = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
+    test_df, test_embeddings = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
 
     # Split to train validation
     validation_size = int(len(train_df) * 0.1)
@@ -217,14 +218,19 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     X = train_df[['p1', 'p2']]
     Y = train_df['similar']
 
+    X_test = test_df[['p1', 'p2']]
+    Y_test = test_df['similar']
+
     X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size)
 
     X_train = split_and_zero_padding(X_train, max_seq_length)
     X_validation = split_and_zero_padding(X_validation, max_seq_length)
+    X_test = split_and_zero_padding(X_test, max_seq_length)
 
     # Convert labels to their numpy representations
     Y_train = Y_train.values
     Y_validation = Y_validation.values
+    Y_test = Y_test.values
 
     # Make sure everything is ok
     assert X_train['left'].shape == X_train['right'].shape
@@ -298,6 +304,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
 
     print(str(malstm_trained.history['val_accuracy'][-1])[:6] +
           "(max: " + str(max(malstm_trained.history['val_accuracy']))[:6] + ")")
+    malstm_trained.evaluate(X_test, Y_test)
     print("Done.")
 
 def main():
