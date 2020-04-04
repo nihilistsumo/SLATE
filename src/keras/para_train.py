@@ -337,8 +337,8 @@ def main():
     train_emb_vec_dir = args['train_emb_dir']
     test_emb_vec_dir = args['test_emb_dir']
     prefix = args['emb_prefix']
-    batch = args['batch_size']
-    epochs = args['num_epochs']
+    batch = int(args['batch_size'])
+    epochs = int(args['num_epochs'])
     outmodel = args['out_model']
     outplot = args['out_plot']
     train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
