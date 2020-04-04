@@ -112,7 +112,7 @@ class SentbertParaEmbedding():
 #     data_mat = pd.DataFrame(data_mat, columns=['similar', 'p1', 'p2'])
 #     return data_mat, np.load(emb_vec_file)
 
-def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, batch_size):
+def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, batch_size, emb_start_index=0):
     emb_pid_dict = {}
     emb_pid_list = np.load(emb_pid_file)
     for l in emb_pid_list:
@@ -120,7 +120,7 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
     sent_embed = SentbertParaEmbedding(emb_pid_file, emb_vec_dir, emb_file_prefix, batch_size)
     data_mat = []
     embeddings = []
-    emb_index = 0
+    # emb_start_index = 0
     print('Going to embed '+str(len(dat))+' parapair samples')
     c = 0
     for t in dat:
@@ -128,18 +128,18 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         p1 = t[1]
         # p1dat = emb_pid_dict[p1]
         p1vec = sent_embed.get_single_sent_embedding(p1)
-        p1emb = list(range(emb_index, emb_index + len(p1vec)))
+        p1emb = list(range(emb_start_index, emb_start_index + len(p1vec)))
         for v in p1vec:
             embeddings.append(v)
-        emb_index += len(p1vec)
+        emb_start_index += len(p1vec)
 
         p2 = t[2].strip()
         # p2dat = emb_pid_dict[p2]
         p2vec = sent_embed.get_single_sent_embedding(p2)
-        p2emb = list(range(emb_index, emb_index + len(p2vec)))
+        p2emb = list(range(emb_start_index, emb_start_index + len(p2vec)))
         for v in p2vec:
             embeddings.append(v)
-        emb_index += len(p2vec)
+        emb_start_index += len(p2vec)
         data_mat.append([t[0], p1emb, p2emb])
         c += 1
         if c % (len(dat) // 20) == 0:
@@ -209,7 +209,9 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     use_w2v = True
 
     train_df, train_embeddings = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
-    test_df, test_embeddings = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
+    test_df, test_embeddings = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, train_embeddings.shape[0])
+
+    comb_train_test_embeddings = np.vstack((train_embeddings, test_embeddings))
 
     # Split to train validation
     validation_size = int(len(train_df) * 0.1)
