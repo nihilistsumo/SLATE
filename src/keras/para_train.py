@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 import itertools
 from sklearn.metrics import roc_auc_score
+import random
 
 # File paths
 TRAIN_TSV = '/home/sumanta/Documents/SiameseLSTM_data/by1train-discrim-bal.tsv'
@@ -123,12 +124,17 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
     # emb_start_index = 0
     print('Going to embed '+str(len(dat))+' parapair samples')
     c = 0
+    shuffle_test = False
+    if emb_start_index != 0:
+        shuffle_test = True
     for t in dat:
         # we have to make the embeddings matrix on the fly ( 2nd parameter returned from this)
         p1 = t[1]
         # p1dat = emb_pid_dict[p1]
         p1vec = sent_embed.get_single_sent_embedding(p1)
         p1emb = list(range(emb_start_index, emb_start_index + len(p1vec)))
+        if shuffle_test:
+            random.shuffle(p1vec)
         for v in p1vec:
             embeddings.append(v)
         emb_start_index += len(p1vec)
@@ -137,6 +143,8 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         # p2dat = emb_pid_dict[p2]
         p2vec = sent_embed.get_single_sent_embedding(p2)
         p2emb = list(range(emb_start_index, emb_start_index + len(p2vec)))
+        if shuffle_test:
+            random.shuffle(p2vec)
         for v in p2vec:
             embeddings.append(v)
         emb_start_index += len(p2vec)
