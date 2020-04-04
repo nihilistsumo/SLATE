@@ -314,6 +314,8 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
         print(str(malstm_trained.history['val_acc'][-1])[:6] +
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
     model.evaluate([X_test['left'], X_test['right']], Y_test)
+    yhat = model.predict([X_test['left'], X_test['right']])
+    print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
     print("Done.")
 
 def main():
