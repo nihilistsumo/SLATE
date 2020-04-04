@@ -18,6 +18,7 @@ import numpy as np
 import itertools
 from sklearn.metrics import roc_auc_score
 import random
+import json
 
 # File paths
 TRAIN_TSV = '/home/sumanta/Documents/SiameseLSTM_data/by1train-discrim-bal.tsv'
@@ -121,10 +122,8 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
     sent_embed = SentbertParaEmbedding(emb_pid_file, emb_vec_dir, emb_file_prefix, batch_size)
     data_mat = []
     embeddings = []
+    parapairs = []
     # emb_start_index = 0
-    randomize = False
-    if emb_start_index != 0:
-        randomize = True
     print('Going to embed '+str(len(dat))+' parapair samples')
     c = 0
     for t in dat:
@@ -133,13 +132,8 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         # p1dat = emb_pid_dict[p1]
         p1vec = sent_embed.get_single_sent_embedding(p1)
         p1emb = list(range(emb_start_index, emb_start_index + len(p1vec)))
-        np.random.shuffle(p1vec)
-        if randomize:
-            for v in p1vec:
-                embeddings.append(np.random.randn(768))
-        else:
-            for v in p1vec:
-                embeddings.append(v)
+        for v in p1vec:
+            embeddings.append(v)
         emb_start_index += len(p1vec)
 
         p2 = t[2].strip()
@@ -147,20 +141,17 @@ def make_psg_pair_embeddings(dat, emb_pid_file, emb_vec_dir, emb_file_prefix, ba
         p2vec = sent_embed.get_single_sent_embedding(p2)
         p2emb = list(range(emb_start_index, emb_start_index + len(p2vec)))
         np.random.shuffle(p2vec)
-        if randomize:
-            for v in p2vec:
-                embeddings.append(np.random.randn(768))
-        else:
-            for v in p2vec:
-                embeddings.append(v)
+        for v in p2vec:
+            embeddings.append(v)
         emb_start_index += len(p2vec)
         data_mat.append([t[0], p1emb, p2emb])
+        parapairs.append(p1+'_'+p2)
         c += 1
         if c % (len(dat) // 20) == 0:
             print(str(c)+' samples embedded')
     data_mat = pd.DataFrame(data_mat, columns=['similar', 'p1', 'p2'])
     embeddings = np.array(embeddings)
-    return data_mat, embeddings
+    return data_mat, embeddings, parapairs
 
 def split_and_zero_padding(df, max_seq_length):
     # Split to dicts
@@ -198,7 +189,8 @@ class ManDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
-def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
+def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE,
+          epochs, model_out_path, plot_path, parapair_score_path):
     # Load training set
     train_dat = []
     with open(TRAIN_TSV, 'r') as tr:
@@ -222,8 +214,8 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     max_seq_length = 20
     use_w2v = True
 
-    train_df, train_embeddings = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
-    test_df, test_embeddings = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, train_embeddings.shape[0])
+    train_df, train_embeddings, train_pairs = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE)
+    test_df, test_embeddings, test_pairs = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, train_embeddings.shape[0])
 
     comb_train_test_embeddings = np.vstack((train_embeddings, test_embeddings))
 
@@ -257,7 +249,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # Model variables
     gpus = 2
     batch_size = 1024 * gpus
-    n_hidden = 50
+    n_hidden = 128
 
     # Define the shared model
     x = Sequential()
@@ -329,6 +321,11 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
     model.evaluate([X_test['left'], X_test['right']], Y_test)
     yhat = model.predict([X_test['left'], X_test['right']])
+    test_pair_scores = {}
+    for i in range(len(yhat)):
+        test_pair_scores[test_pairs[i]] = yhat[i]
+    with open(parapair_score_path, 'w') as pps:
+        json.dump(test_pair_scores, pps)
     print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
     print("Done.")
 
