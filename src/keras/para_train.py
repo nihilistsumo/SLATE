@@ -323,7 +323,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     yhat = model.predict([X_test['left'], X_test['right']])
     test_pair_scores = {}
     for i in range(len(yhat)):
-        test_pair_scores[test_pairs[i]] = yhat[i]
+        test_pair_scores[test_pairs[i]] = float(yhat[i])
     with open(parapair_score_path, 'w') as pps:
         json.dump(test_pair_scores, pps)
     print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
