@@ -249,7 +249,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # Model variables
     gpus = 2
     batch_size = 1024 * gpus
-    n_hidden = 128
+    n_hidden = 64
 
     # Define the shared model
     x = Sequential()
