@@ -248,8 +248,8 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
 
     # Define the shared model
     x = Sequential()
-    x.add(Embedding(len(train_embeddings), embedding_dim,
-                    weights=[train_embeddings], input_shape=(max_seq_length,), trainable=False))
+    x.add(Embedding(len(comb_train_test_embeddings), embedding_dim,
+                    weights=[comb_train_test_embeddings], input_shape=(max_seq_length,), trainable=False))
 
     x.add(LSTM(n_hidden))
 
