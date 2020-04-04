@@ -184,7 +184,7 @@ class ManDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
-def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, model_out_path, plot_path):
+def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
     # Load training set
     train_dat = []
     with open(TRAIN_TSV, 'r') as tr:
@@ -243,7 +243,6 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # Model variables
     gpus = 2
     batch_size = 1024 * gpus
-    n_epoch = 5
     n_hidden = 50
 
     # Define the shared model
@@ -273,10 +272,10 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     # Start trainings
     training_start_time = time()
     malstm_trained = model.fit([X_train['left'], X_train['right']], Y_train,
-                               batch_size=batch_size, epochs=n_epoch,
+                               batch_size=batch_size, epochs=epochs,
                                validation_data=([X_validation['left'], X_validation['right']], Y_validation))
     training_end_time = time()
-    print("Training time finished.\n%d epochs in %12.2f" % (n_epoch,
+    print("Training time finished.\n%d epochs in %12.2f" % (epochs,
                                                             training_end_time - training_start_time))
 
     # model.save('./data/SiameseLSTM.h5')
@@ -327,6 +326,7 @@ def main():
     parser.add_argument('-tv', '--test_emb_dir', help='Path to test emb dir', default=TEST_EMB_VECS_DIR)
     parser.add_argument('-pre', '--emb_prefix', help='Embedding file prefix', default=EMB_FILE_PREFIX)
     parser.add_argument('-bn', '--batch_size', help='Batch size of each embedding file shard', default=EMB_BATCH)
+    parser.add_argument('-ep', '--num_epochs', help='Number of epochs to train', default=50)
     parser.add_argument('-om', '--out_model', help='Path to save the model', default='./data/SiameseLSTM.h5')
     parser.add_argument('-op', '--out_plot', help='Path to save the history plot', default='./data/history-graph.png')
     args = vars(parser.parse_args())
@@ -338,9 +338,10 @@ def main():
     test_emb_vec_dir = args['test_emb_dir']
     prefix = args['emb_prefix']
     batch = args['batch_size']
+    epochs = args['num_epochs']
     outmodel = args['out_model']
     outplot = args['out_plot']
-    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, outmodel, outplot)
+    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
 
 if __name__ == '__main__':
     main()
