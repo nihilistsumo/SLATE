@@ -18,7 +18,7 @@ def merge_parts(parts, prefix, emb_dir):
         offsets.append(count)
     for i in range(len(ids)):
         for id in ids[i]:
-            all_ids.append(id.split('\t')[0] + '\t1\t' + str(offsets[i] + int(id.split('\t')[2])) + id.split('\t')[3])
+            all_ids.append(id.split('\t')[0] + '\t1\t' + str(offsets[i] + int(id.split('\t')[2])) + '\t' + id.split('\t')[3])
         if i == 0:
             all_embs = embs[i]
         else:
