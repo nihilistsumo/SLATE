@@ -3,7 +3,7 @@ import numpy as np
 import json
 import argparse
 
-def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile):
+def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile, part_range):
     all_ids = np.load(emb_paraids_file)
     all_id_part_dict = {}
     for i in range(all_ids.size):
@@ -27,12 +27,13 @@ def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_
         else:
             part_para_dict[part] = [p]
     print('part para dict created')
-    print(str(len(part_para_dict))+' individual emb files to be used')
+    print(str(part_range[1] - part_range[0])+' individual emb files to be used')
     i = 0
     j = 0
     paras = []
     embs = []
-    for pt in part_para_dict.keys():
+    # for pt in part_para_dict.keys():
+    for pt in range(part_range[0], part_range[1]):
         emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
         for para in part_para_dict[pt]:
             embvec = emb_vecs[all_id_part_dict[para][1]:all_id_part_dict[para][1] + all_id_part_dict[para][2]]
@@ -43,8 +44,8 @@ def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_
         j += 1
         print(j)
 
-    np.save(outdir + '/' + outfile + '-part1.npy', np.array(embs))
-    np.save(outdir + '/paraids_' + outfile + '-sents.npy', np.array(paras))
+    np.save(outdir + '/' + outfile + '-part'+str(part_range[0])+'.npy', np.array(embs))
+    np.save(outdir + '/paraids_' + outfile + '-sents-part'+str(part_range[0])+'.npy', np.array(paras))
 
 def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile, batch_size=10000):
     all_ids = np.load(emb_paraids_file)
