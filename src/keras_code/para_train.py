@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout, Dot
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras.layers import Layer
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
@@ -199,6 +199,31 @@ class ManDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
+class CosineDist(Layer):
+    """
+        Keras Custom Layer that calculates Cosine Distance.
+        """
+
+    # initialize the layer, No need to include inputs parameter!
+    def __init__(self, **kwargs):
+        self.result = None
+        super(CosineDist, self).__init__(**kwargs)
+
+    # input_shape will automatic collect input shapes to build layer
+    def build(self, input_shape):
+        super(CosineDist, self).build(input_shape)
+
+    # This is where the layer's logic lives.
+    def call(self, x, **kwargs):
+        a = K.l2_normalize(x[0], axis=-1)
+        b = K.l2_normalize(x[1], axis=-1)
+        self.result = -K.mean(a * b, axis=-1, keepdims=True)
+        return self.result
+
+    # return output shape
+    def compute_output_shape(self, input_shape):
+        return K.int_shape(self.result)
+
 def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
     # Load training set
     train_dat = []
@@ -246,8 +271,9 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
     right_input = Input(shape=(max_seq_length, embedding_dim,), dtype='float32')
 
     # Pack it all up into a Manhattan Distance model
-    malstm_distance = ManDist()([shared_model(left_input), shared_model(right_input)])
-    model = Model(inputs=[left_input, right_input], outputs=[malstm_distance])
+    #malstm_distance = ManDist()([shared_model(left_input), shared_model(right_input)])
+    distance = CosineDist()([shared_model(left_input), shared_model(right_input)])
+    model = Model(inputs=[left_input, right_input], outputs=[distance])
 
     #if gpus >= 2:
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
