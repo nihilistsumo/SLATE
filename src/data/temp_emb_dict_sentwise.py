@@ -9,8 +9,8 @@ def merge_parts(parts, prefix, emb_dir):
     all_ids = []
     all_embs = []
     for p in parts:
-        ids.append(np.load(emb_dir+'/paraids_'+prefix+'-sents-part'+p+'.npy'))
-        embs.append(np.load(emb_dir+'/'+prefix+'-part'+p+'.npy'))
+        ids.append(np.load(emb_dir+'/paraids_'+prefix+'-sents-part'+str(p)+'.npy'))
+        embs.append(np.load(emb_dir+'/'+prefix+'-part'+str(p)+'.npy'))
     offsets = [0]
     count = 0
     for i in range(1, len(ids)):
