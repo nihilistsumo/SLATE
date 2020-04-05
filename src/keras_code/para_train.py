@@ -239,7 +239,7 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
 
     # Make word2vec embeddings
     embedding_dim = 768
-    max_seq_length = 5
+    max_seq_length = 20
     use_w2v = True
 
     Y, X, train_pairs = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
