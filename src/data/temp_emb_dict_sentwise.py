@@ -3,6 +3,28 @@ import numpy as np
 import json
 import argparse
 
+def merge_parts(parts, prefix, emb_dir):
+    ids = []
+    embs = []
+    all_ids = []
+    all_embs = []
+    for p in parts:
+        ids.append(np.load(emb_dir+'/paraids_'+prefix+'-sents-part'+p+'.npy'))
+        embs.append(np.load(emb_dir+'/'+prefix+'-part'+p+'.npy'))
+    offsets = [0]
+    count = 0
+    for i in range(1, len(ids)):
+        count += len(ids[i-1])
+        offsets.append(count)
+    for i in range(len(ids)):
+        for id in ids[i]:
+            all_ids.append(id.split('\t')[0] + '\t1\t' + str(offsets[i] + int(id.split('\t')[2])) + id.split('\t')[3])
+        if i == 0:
+            all_embs = embs[i]
+        else:
+            all_embs = np.vstack((all_embs, embs[i]))
+    return all_ids, all_embs
+
 def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile, part_range):
     all_ids = np.load(emb_paraids_file)
     all_id_part_dict = {}
