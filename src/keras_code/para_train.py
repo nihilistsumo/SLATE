@@ -199,7 +199,7 @@ class ManDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
-def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
+def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
     # Load training set
     train_dat = []
     with open(TRAIN_TSV, 'r') as tr:
@@ -210,13 +210,6 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BA
                 continue
             train_dat.append([int(l.split('\t')[0]), l.split('\t')[1], l.split('\t')[2]])
     test_dat = []
-    with open(TEST_TSV, 'r') as tt:
-        first = True
-        for l in tt:
-            if first:
-                first = False
-                continue
-            test_dat.append([int(l.split('\t')[0]), l.split('\t')[1], l.split('\t')[2]])
 
     # Make word2vec embeddings
     embedding_dim = 768
@@ -310,7 +303,6 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BA
 def main():
     parser = argparse.ArgumentParser(description='Train Siamese LSTM model for passage similarity')
     parser.add_argument('-tr', '--train_dat', help='Path to training data in bert seq format', default=TRAIN_TSV)
-    parser.add_argument('-te', '--test_dat', help='Path to test data in bert seq format', default=TEST_TSV)
     parser.add_argument('-ri', '--train_emb_pid', help='Path to train emb paraids', default=TRAIN_EMB_PIDS)
     parser.add_argument('-rv', '--train_emb_dir', help='Path to train emb dir', default=TRAIN_EMB_VECS_DIR)
     parser.add_argument('-pre', '--emb_prefix', help='Embedding file prefix', default=EMB_FILE_PREFIX)
@@ -320,7 +312,6 @@ def main():
     parser.add_argument('-op', '--out_plot', help='Path to save the history plot', default='../data/history-graph.png')
     args = vars(parser.parse_args())
     train_file = args['train_dat']
-    test_file = args['test_dat']
     train_emb_pid = args['train_emb_pid']
     train_emb_vec_dir = args['train_emb_dir']
     prefix = args['emb_prefix']
@@ -328,7 +319,7 @@ def main():
     epochs = int(args['num_epochs'])
     outmodel = args['out_model']
     outplot = args['out_plot']
-    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
+    train(train_file, train_emb_pid, train_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
 
 if __name__ == '__main__':
     main()
