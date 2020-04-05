@@ -111,6 +111,7 @@ def main():
     parser.add_argument('-b', '--batch', help='Batch size for each input embedding shards')
     parser.add_argument('-od', '--outdir', help='Path to output dir')
     parser.add_argument('-of', '--outfile', help='output temp emb file name without .npy')
+    parser.add_argument('-pr', '--part_range', help='Part range in the form start-stop')
     args = vars(parser.parse_args())
     emb_dir = args['emb_dir']
     emb_paraids_file = args['emb_paras']
@@ -119,7 +120,8 @@ def main():
     batch = int(args['batch'])
     outdir = args['outdir']
     outfile = args['outfile']
-    create_temp_single_emb_dir(emb_dir, prefix, emb_paraids_file, bt_file, outdir, outfile)
+    part_range = [int(args['part_range'].split('-')[0]), int(args['part_range'].split('-')[1])]
+    create_temp_single_emb_dir(emb_dir, prefix, emb_paraids_file, bt_file, outdir, outfile, part_range)
 
 if __name__ == '__main__':
     main()
