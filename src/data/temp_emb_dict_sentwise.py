@@ -3,6 +3,49 @@ import numpy as np
 import json
 import argparse
 
+def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile):
+    all_ids = np.load(emb_paraids_file)
+    all_id_part_dict = {}
+    for i in range(all_ids.size):
+        all_id_part_dict[all_ids[i].split('\t')[0]] = (int(all_ids[i].split('\t')[1]), int(all_ids[i].split('\t')[2]),
+                                                       int(all_ids[i].split('\t')[3]))
+    p_list = set()
+    with open(bert_seq_data_file, 'r') as qd:
+        first = True
+        for l in qd:
+            if first:
+                first = False
+                continue
+            p_list.add(l.split('\t')[1])
+            p_list.add(l.split('\t')[2])
+    print('Have to find embeddings of ' + str(len(p_list)) + ' paras')
+    part_para_dict = {}
+    for p in p_list:
+        part = all_id_part_dict[p][0]
+        if part in part_para_dict.keys():
+            part_para_dict[part].append(p)
+        else:
+            part_para_dict[part] = [p]
+    print('part para dict created')
+    print(str(len(part_para_dict))+' individual emb files to be used')
+    i = 0
+    j = 0
+    paras = []
+    embs = []
+    for pt in part_para_dict.keys():
+        emb_vecs = np.load(emb_dir + '/' + emb_file_prefix + '-part' + str(pt) + '.npy')
+        for para in part_para_dict[pt]:
+            embvec = emb_vecs[all_id_part_dict[para][1]:all_id_part_dict[para][1] + all_id_part_dict[para][2]]
+            paras.append(para + '\t1\t' + str(i) + '\t' + str(all_id_part_dict[para][2]))
+            i += all_id_part_dict[para][2]
+            for e in embvec:
+                embs.append(e)
+        j += 1
+        print(j)
+
+    np.save(outdir + '/' + outfile + '-part1.npy', np.array(embs))
+    np.save(outdir + '/paraids_' + outfile + '-sents.npy', np.array(paras))
+
 def create_temp_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_seq_data_file, outdir, outfile, batch_size=10000):
     all_ids = np.load(emb_paraids_file)
     all_id_part_dict = {}
@@ -75,7 +118,7 @@ def main():
     batch = int(args['batch'])
     outdir = args['outdir']
     outfile = args['outfile']
-    create_temp_emb_dir(emb_dir, prefix, emb_paraids_file, bt_file, outdir, outfile, batch)
+    create_temp_single_emb_dir(emb_dir, prefix, emb_paraids_file, bt_file, outdir, outfile)
 
 if __name__ == '__main__':
     main()
