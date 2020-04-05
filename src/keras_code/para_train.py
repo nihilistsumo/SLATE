@@ -11,6 +11,7 @@ import tensorflow as tf
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout, Dot
 from tensorflow.python.keras import backend as K
+from tensorflow.python.keras import regularizers
 from tensorflow.python.keras.layers import Layer
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 import pandas as pd
@@ -262,7 +263,7 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
     # Define the shared model
     x = Sequential()
 
-    x.add(LSTM(n_hidden))
+    x.add(LSTM(n_hidden, kernel_regularizer=regularizers.l2(0.001)))
 
     shared_model = x
 
