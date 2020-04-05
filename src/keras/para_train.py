@@ -231,7 +231,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     use_w2v = True
 
     Y, X, train_pairs = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
-    Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
+    #Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
 
     # Split to train validation
     validation_size = int(len(X) * 0.1)
@@ -318,14 +318,14 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     else:
         print(str(malstm_trained.history['val_acc'][-1])[:6] +
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
-    model.evaluate([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]], Y_test)
-    yhat = model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])
-    test_pair_scores = {}
-    for i in range(len(yhat)):
-        test_pair_scores[test_pairs[i]] = float(yhat[i])
-    with open(parapair_score_path, 'w') as pps:
-        json.dump(test_pair_scores, pps)
-    print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
+    # model.evaluate([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]], Y_test)
+    # yhat = model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])
+    # test_pair_scores = {}
+    # for i in range(len(yhat)):
+    #     test_pair_scores[test_pairs[i]] = float(yhat[i])
+    # with open(parapair_score_path, 'w') as pps:
+    #     json.dump(test_pair_scores, pps)
+    # print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
     print("Done.")
 
 def main():
