@@ -217,7 +217,7 @@ class CosineDist(Layer):
     def call(self, x, **kwargs):
         a = K.l2_normalize(x[0], axis=-1)
         b = K.l2_normalize(x[1], axis=-1)
-        self.result = -K.mean(a * b, axis=-1, keepdims=True)
+        self.result = K.exp(-K.mean(a * b, axis=-1, keepdims=True))
         return self.result
 
     # return output shape
@@ -271,9 +271,9 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
     right_input = Input(shape=(max_seq_length, embedding_dim,), dtype='float32')
 
     # Pack it all up into a Manhattan Distance model
-    #malstm_distance = ManDist()([shared_model(left_input), shared_model(right_input)])
-    distance = CosineDist()([shared_model(left_input), shared_model(right_input)])
-    model = Model(inputs=[left_input, right_input], outputs=[distance])
+    malstm_distance = ManDist()([shared_model(left_input), shared_model(right_input)])
+    # cos_distance = CosineDist()([shared_model(left_input), shared_model(right_input)])
+    model = Model(inputs=[left_input, right_input], outputs=[malstm_distance])
 
     #if gpus >= 2:
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
