@@ -270,7 +270,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
 
     #if gpus >= 2:
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
-        #model = tf.keras.utils.multi_gpu_model(model, gpus=gpus)
+        #model = tf.keras_code.utils.multi_gpu_model(model, gpus=gpus)
     model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
     model.summary()
     shared_model.summary()

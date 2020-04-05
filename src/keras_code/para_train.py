@@ -199,14 +199,7 @@ class ManDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
-def prepare_dat_matrix(dat):
-    left_dat = dat['p1']
-    right_dat = dat['p2']
-    left_dat = np.reshape(left_dat, (20, 768, -1))
-    return dat
-
-def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE,
-          epochs, model_out_path, plot_path, parapair_score_path):
+def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
     # Load training set
     train_dat = []
     with open(TRAIN_TSV, 'r') as tr:
@@ -231,14 +224,10 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     use_w2v = True
 
     Y, X, train_pairs = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
-    #Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
 
     # Split to train validation
     validation_size = int(len(X) * 0.1)
     training_size = len(X) - validation_size
-
-    #X_test = test_df[['p1', 'p2']]
-    #Y_test = test_df['similar']
 
     X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size)
 
@@ -269,7 +258,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
 
     #if gpus >= 2:
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
-        #model = tf.keras.utils.multi_gpu_model(model, gpus=gpus)
+        #model = tf.keras_code.utils.multi_gpu_model(model, gpus=gpus)
     model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
     model.summary()
     shared_model.summary()
@@ -283,8 +272,7 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     print("Training time finished.\n%d epochs in %12.2f" % (epochs,
                                                             training_end_time - training_start_time))
 
-    # model.save('./data/SiameseLSTM.h5')
-    model.save(model_out_path)
+    model.save_weights(model_out_path)
 
     # Plot accuracy
     plt.subplot(211)
@@ -309,7 +297,6 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     plt.legend(['Train', 'Validation'], loc='upper right')
 
     plt.tight_layout(h_pad=1.0)
-    # plt.savefig('./data/history-graph.png')
     plt.savefig(plot_path)
 
     if 'accuracy' in malstm_trained.history.keys():
@@ -318,14 +305,6 @@ def train(TRAIN_TSV, TEST_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, TEST_EMB_PIDS, TES
     else:
         print(str(malstm_trained.history['val_acc'][-1])[:6] +
               "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
-    # model.evaluate([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]], Y_test)
-    # yhat = model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])
-    # test_pair_scores = {}
-    # for i in range(len(yhat)):
-    #     test_pair_scores[test_pairs[i]] = float(yhat[i])
-    # with open(parapair_score_path, 'w') as pps:
-    #     json.dump(test_pair_scores, pps)
-    # print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
     print("Done.")
 
 def main():
@@ -333,29 +312,23 @@ def main():
     parser.add_argument('-tr', '--train_dat', help='Path to training data in bert seq format', default=TRAIN_TSV)
     parser.add_argument('-te', '--test_dat', help='Path to test data in bert seq format', default=TEST_TSV)
     parser.add_argument('-ri', '--train_emb_pid', help='Path to train emb paraids', default=TRAIN_EMB_PIDS)
-    parser.add_argument('-ti', '--test_emb_pid', help='Path to test emb paraids', default=TEST_EMB_PIDS)
     parser.add_argument('-rv', '--train_emb_dir', help='Path to train emb dir', default=TRAIN_EMB_VECS_DIR)
-    parser.add_argument('-tv', '--test_emb_dir', help='Path to test emb dir', default=TEST_EMB_VECS_DIR)
     parser.add_argument('-pre', '--emb_prefix', help='Embedding file prefix', default=EMB_FILE_PREFIX)
     parser.add_argument('-bn', '--batch_size', help='Batch size of each embedding file shard', default=EMB_BATCH)
     parser.add_argument('-ep', '--num_epochs', help='Number of epochs to train', default=10)
-    parser.add_argument('-os', '--out_score', help='Path to save the parapair score file for test', default='../data/test_parapair.json')
     parser.add_argument('-om', '--out_model', help='Path to save the model', default='../data/SiameseLSTM.h5')
     parser.add_argument('-op', '--out_plot', help='Path to save the history plot', default='../data/history-graph.png')
     args = vars(parser.parse_args())
     train_file = args['train_dat']
     test_file = args['test_dat']
     train_emb_pid = args['train_emb_pid']
-    test_emb_pid = args['test_emb_pid']
     train_emb_vec_dir = args['train_emb_dir']
-    test_emb_vec_dir = args['test_emb_dir']
     prefix = args['emb_prefix']
     batch = int(args['batch_size'])
     epochs = int(args['num_epochs'])
-    outscore = args['out_score']
     outmodel = args['out_model']
     outplot = args['out_plot']
-    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, test_emb_pid, test_emb_vec_dir, prefix, batch, epochs, outmodel, outplot, outscore)
+    train(train_file, test_file, train_emb_pid, train_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
 
 if __name__ == '__main__':
     main()
