@@ -206,16 +206,32 @@ def eval(TEST_TSV, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, MODE
     # Make word2vec embeddings
     embedding_dim = 768
     max_seq_length = 20
-    Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat, TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX,
-                                                          EMB_BATCH_SIZE, max_seq_length)
+    batch_size = 10000
+    num_batch = len(test_dat) // batch_size
+    Y_test_all = []
+    yhat = []
+    all_pairs = []
+    for b in range(num_batch):
+        Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat[b*batch_size:b*batch_size+batch_size],
+                                                              TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE,
+                                                              max_seq_length)
+        model.evaluate([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]], Y_test)
+        yhat += [n[0] for n in model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])]
+        Y_test_all += list(Y_test)
+        all_pairs += test_pairs
+    Y_test, X_test, test_pairs = make_psg_pair_embeddings(test_dat[num_batch * batch_size:],
+                                                          TEST_EMB_PIDS, TEST_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE,
+                                                          max_seq_length)
     model.evaluate([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]], Y_test)
-    yhat = model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])
+    yhat += [n[0] for n in model.predict([X_test[:, :, :embedding_dim], X_test[:, :, embedding_dim:]])]
+    Y_test_all += list(Y_test)
+    all_pairs += test_pairs
     test_pair_scores = {}
     for i in range(len(yhat)):
-        test_pair_scores[test_pairs[i]] = float(yhat[i])
+        test_pair_scores[all_pairs[i]] = float(yhat[i])
     with open(parapair_score_path, 'w') as pps:
         json.dump(test_pair_scores, pps)
-    print('BY1test AUC: '+str(roc_auc_score(Y_test, yhat)))
+    print('BY1test AUC: '+str(roc_auc_score(Y_test_all, yhat)))
 
 def main():
     parser = argparse.ArgumentParser(description='Train Siamese LSTM model for passage similarity')
