@@ -40,7 +40,6 @@ def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_
                 continue
             p_list.add(l.split('\t')[1])
             p_list.add(l.split('\t')[2])
-    print('Have to find embeddings of ' + str(len(p_list)) + ' paras')
     part_para_dict = {}
     for p in p_list:
         part = all_id_part_dict[p][0]
@@ -50,6 +49,8 @@ def create_temp_single_emb_dir(emb_dir, emb_file_prefix, emb_paraids_file, bert_
             part_para_dict[part] = [p]
     print('part para dict created')
     print(str(part_range[1] - part_range[0])+' individual emb files to be used')
+    para_num = sum([len(part_para_dict[p]) for p in part_para_dict.keys()])
+    print('Have to find embeddings of ' + str(para_num) + ' paras')
     i = 0
     j = 0
     paras = []
