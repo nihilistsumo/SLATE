@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout, Dot
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout, Dot, Bidirectional
 from tensorflow.python.keras import backend as K
 from tensorflow.python.keras import regularizers
 from tensorflow.python.keras.layers import Layer
@@ -225,7 +225,7 @@ class CosineDist(Layer):
     def compute_output_shape(self, input_shape):
         return K.int_shape(self.result)
 
-def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path):
+def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, epochs, model_out_path, plot_path, max_seq_length=20, n_hidden=50):
     # Load training set
     train_dat = []
     with open(TRAIN_TSV, 'r') as tr:
@@ -239,7 +239,6 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
 
     # Make word2vec embeddings
     embedding_dim = 768
-    max_seq_length = 20
     use_w2v = True
 
     Y, X, train_pairs = make_psg_pair_embeddings(train_dat, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, max_seq_length)
@@ -258,12 +257,12 @@ def train(TRAIN_TSV, TRAIN_EMB_PIDS, TRAIN_EMB_DIR, EMB_PREFIX, EMB_BATCH_SIZE, 
     # Model variables
     gpus = 2
     batch_size = 1024 * gpus
-    n_hidden = 50
 
     # Define the shared model
     x = Sequential()
 
-    x.add(LSTM(n_hidden))
+    #x.add(LSTM(n_hidden))
+    x.add(Bidirectional(LSTM(n_hidden)))
 
     shared_model = x
 
@@ -337,6 +336,8 @@ def main():
     parser.add_argument('-ep', '--num_epochs', help='Number of epochs to train', default=10)
     parser.add_argument('-om', '--out_model', help='Path to save the model', default='../data/SiameseLSTM.h5')
     parser.add_argument('-op', '--out_plot', help='Path to save the history plot', default='../data/history-graph.png')
+    parser.add_argument('-len', '--max_len', help='Maximum seq len to consider')
+    parser.add_argument('-hn', '--hidden', help='Number of hiddent units in LSTM')
     args = vars(parser.parse_args())
     train_file = args['train_dat']
     train_emb_pid = args['train_emb_pid']
@@ -346,7 +347,9 @@ def main():
     epochs = int(args['num_epochs'])
     outmodel = args['out_model']
     outplot = args['out_plot']
-    train(train_file, train_emb_pid, train_emb_vec_dir, prefix, batch, epochs, outmodel, outplot)
+    max_len = int(args['max_len'])
+    hidden = int(args['hidden'])
+    train(train_file, train_emb_pid, train_emb_vec_dir, prefix, batch, epochs, outmodel, outplot, max_len, hidden)
 
 if __name__ == '__main__':
     main()
